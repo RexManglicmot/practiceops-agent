@@ -86,25 +86,29 @@ passed through.
 ## Setup
 
 ```bash
-# 1. Create/activate the virtual environment
+# 1. Clone the repo and move into it
+git clone https://github.com/RexManglicmot/practiceops-agent.git
+cd practiceops-agent
+
+# 2. Create/activate the virtual environment
 python3 -m venv venv_praticeops_agent
 source venv_praticeops_agent/bin/activate
 
-# 2. Install dependencies
+# 3. Install dependencies
 pip install -r requirements.txt
 
-# 3. Pull and serve the local model (only needs to be done once; ollama serve
+# 4. Pull and serve the local model (only needs to be done once; ollama serve
 #    may already be running as a background service)
 ollama pull gemma2:9b
 ollama serve
 
-# 4. Configure environment (defaults already match a standard local Ollama install)
+# 5. Configure environment (defaults already match a standard local Ollama install)
 cp .env.example .env
 
-# 5. Run the evaluation suite
+# 6. Run the evaluation suite
 python evaluate.py
 
-# 6. Run the interactive dashboard
+# 7. Run the interactive dashboard
 streamlit run app.py
 ```
 
@@ -117,8 +121,10 @@ anywhere in this project. Each case pairs a plausible metrics profile with hand-
 ground truth:
 
 - `metrics` — the nine input variables described below, fed to the Diagnostic Agent.
-- `expected_issues` — ground truth: the issues that actually apply to that practice.
-- `expected_actions` — ground truth: the actions that actually apply to that practice.
+- `expected_issues` — ground truth for the **Diagnostic Agent**: the issues that actually
+  apply to that practice.
+- `expected_actions` — ground truth for the **Action Agent**: the actions that actually
+  apply to that practice.
 
 ### The nine input variables
 
@@ -162,11 +168,23 @@ JSON-formatting behavior, not a benchmark of real-world diagnostic difficulty.
 
 ## Evaluation
 
-`evaluate.py` scores both agents against `test_cases.json` (30 hand-built cases spanning
-all six issue labels and nine "healthy practice" cases with zero expected issues) using
-multi-label precision, recall, and F1. Agent 2 is scored against ground-truth issue labels
-(not Agent 1's predictions) so its score isn't polluted by Agent 1's classification errors
-— the live dashboard, by contrast, chains Agent 1's real output into Agent 2.
+`evaluate.py` runs both agents against all 30 cases in `test_cases.json` and scores each
+one separately, using multi-label precision, recall, and F1 (explained below):
+
+- **Diagnostic Agent** — given each case's `metrics`, compare its predicted issues against
+  `expected_issues`.
+- **Action Agent** — given each case's `expected_issues` (the ground truth, *not* whatever
+  the Diagnostic Agent actually predicted), compare its predicted actions against
+  `expected_actions`.
+
+Feeding the Action Agent ground-truth issues instead of the Diagnostic Agent's real output
+is deliberate: it isolates the Action Agent's own accuracy. If the Diagnostic Agent missed
+an issue, that mistake would otherwise also count against the Action Agent, even though the
+Action Agent behaved correctly given the input it received.
+
+This is different from the live Streamlit dashboard, which chains the *real* pipeline —
+the Diagnostic Agent's actual predicted issues become the Action Agent's actual input —
+since that's what a real user experiences.
 
 ### How precision, recall, and F1 are calculated
 
