@@ -4,6 +4,12 @@ A two-agent LLM system that analyzes medical practice operational metrics, ident
 workflow problems, and recommends predefined operational actions — running entirely on a
 local [Ollama](https://ollama.com) model (`gemma2:9b`), no API key or GPU required.
 
+> **Main impact:** replaces manual dashboard-reading with an automated read → diagnose →
+> recommend pipeline — turning six raw operational metrics into a specific, catalog-backed
+> action plan in one pass, at 0.88 F1 on issue detection and 1.00 F1 on action selection
+> (see [Evaluation](#evaluation)), entirely on a free local model with no PHI ever leaving
+> the machine.
+
 ## Problem statement
 
 Medical practices collect operational metrics (no-show rate, portal adoption, check-in
@@ -126,14 +132,47 @@ across 28 medical specialties (Dermatology, Family Medicine, Cardiology, Orthope
 Psychiatry, Pediatrics, and others) — no real practice or patient data is used anywhere in
 this project. Each case pairs a plausible metrics profile with hand-labeled ground truth:
 
-- `metrics` — the same nine fields the dashboard collects (specialty, providers,
-  monthly appointments, and the six operational rates/counts), spanning realistic ranges
-  (e.g. 4–20 providers, 800–6,500 monthly appointments, 5%–25% no-show rate, 20%–95% portal
-  adoption) chosen to sit on both sides of every threshold in the rules table above.
-- `expected_issues` — the issue labels a correct application of the threshold rules
-  produces for that practice, including 9 "healthy practice" cases with an empty list.
-- `expected_actions` — the corresponding ground-truth actions, derived from
-  `expected_issues` via the fixed 1:1 mapping.
+- `metrics` — the nine input variables described below, fed to the Diagnostic Agent.
+- `expected_issues` — the correct-answer key for the **Diagnostic Agent**: the issue
+  labels a correct application of the threshold rules produces for that practice,
+  including 9 "healthy practice" cases with an empty list.
+- `expected_actions` — the correct-answer key for the **Action Agent**: `expected_issues`
+  run through the fixed 1:1 issue→action mapping (see Agents above).
+
+### The nine input variables
+
+Every `metrics` object has exactly these fields. Three are contextual only (no rule reads
+them); six each feed exactly one threshold rule:
+
+- `specialty` — the practice's medical specialty (e.g. "Dermatology").
+- `providers` — how many doctors/clinicians work at the practice.
+- `monthly_appointments` — total patient appointments booked per month.
+- `no_show_rate` — the fraction of scheduled appointments patients simply don't show up for.
+- `portal_adoption_rate` — the fraction of patients actively using the online patient portal.
+- `average_check_in_minutes` — how long, on average, a patient waits at check-in before being seen.
+- `weekly_phone_calls` — how many phone calls the front desk fields in a typical week.
+- `claim_denial_rate` — the fraction of submitted insurance claims that get denied.
+- `provider_utilization` — how much of a provider's available appointment capacity is actually booked.
+
+| Variable | Type | Dataset range | Rule it feeds | Used by a rule? |
+|---|---|---|---|---|
+| `specialty` | string | 28 specialties (Dermatology, Cardiology, …) | — | No — context only |
+| `providers` | integer, count | 4–20 | — | No — context only |
+| `monthly_appointments` | integer, count | 800–6,500 | — | No — context only |
+| `no_show_rate` | float, 0–1 | 0.05–0.25 | `>= 0.15` → `high_no_show` | Yes |
+| `portal_adoption_rate` | float, 0–1 | 0.20–0.95 | `< 0.40` → `low_portal_use` | Yes |
+| `average_check_in_minutes` | integer, minutes | 7–22 | `>= 15` → `long_check_in` | Yes |
+| `weekly_phone_calls` | integer, count | 200–1,100 | `>= 600` → `front_desk_overload` | Yes |
+| `claim_denial_rate` | float, 0–1 | 0.01–0.15 | `>= 0.08` → `billing_risk` | Yes |
+| `provider_utilization` | float, 0–1 | 0.52–0.95 | `< 0.70` → `low_provider_utilization` | Yes |
+
+`specialty`, `providers`, and `monthly_appointments` exist purely to make each case read
+like a real practice — the Diagnostic Agent's prompt never applies a rule to them, and
+changing them alone can't change a case's expected issues. Every other variable was
+specifically chosen, per case, to land on both sides of its threshold across the dataset
+(e.g. some cases have `claim_denial_rate` just under 0.08, others just over) so the
+evaluation exercises boundary behavior, not just obviously-healthy or obviously-broken
+practices.
 
 Because both ground-truth fields are generated deterministically from the same threshold
 and mapping rules given to the agents (rather than sourced from real EHR/PM system
