@@ -158,6 +158,15 @@ comparing it against other locally-available models on the same test suite:
 | `llama3.1:latest` | Diagnostic Agent | 0.88 | 0.67 | 0.76 |
 | `llama3.1:latest` | Action Agent | 0.99 | 1.00 | 0.99 |
 
+![Precision, recall, and F1 by model for the Diagnostic and Action agents](assets/eval_metrics.png)
+
+The gap between models is almost entirely a recall gap on the Diagnostic Agent (0.86 vs.
+0.67) — `gemma2:9b` catches more of the true issue labels per practice, while both models
+hold similarly high precision. The Action Agent is near-parity either way, since mapping a
+given set of issues to actions is a simpler, more mechanical task than reading thresholds
+off raw metrics. Regenerate this chart with `python generate_charts.py` (needs
+`pip install matplotlib`) after any change to the numbers above.
+
 Supporting reliability metrics:
 
 | Model | JSON validity rate | Unsupported-label rate |
