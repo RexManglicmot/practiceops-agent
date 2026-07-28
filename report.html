@@ -1,0 +1,336 @@
+<meta charset="utf-8">
+<title>PracticeOps Agents — Evaluation Report</title>
+<style>
+  .viz-root {
+    color-scheme: light;
+    --surface-1:      #fcfcfb;
+    --page:           #f9f9f7;
+    --text-primary:   #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted:     #898781;
+    --gridline:       #e1e0d9;
+    --baseline:       #c3c2b7;
+    --border:         rgba(11,11,11,0.10);
+    --series-1:       #2a78d6; /* Diagnostic Agent */
+    --series-2:       #eb6834; /* Action Agent */
+    --good:           #0ca30c;
+    --critical:       #d03b3b;
+    --good-wash:      #e8f6e8;
+    --critical-wash:  #fbeaea;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) .viz-root {
+      color-scheme: dark;
+      --surface-1:      #1a1a19;
+      --page:           #0d0d0d;
+      --text-primary:   #ffffff;
+      --text-secondary: #c3c2b7;
+      --text-muted:     #898781;
+      --gridline:       #2c2c2a;
+      --baseline:       #383835;
+      --border:         rgba(255,255,255,0.10);
+      --series-1:       #3987e5;
+      --series-2:       #d95926;
+      --good:           #0ca30c;
+      --critical:       #e66767;
+      --good-wash:      rgba(12,163,12,0.12);
+      --critical-wash:  rgba(230,103,103,0.14);
+    }
+  }
+  :root[data-theme="dark"] .viz-root {
+    color-scheme: dark;
+    --surface-1:      #1a1a19;
+    --page:           #0d0d0d;
+    --text-primary:   #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted:     #898781;
+    --gridline:       #2c2c2a;
+    --baseline:       #383835;
+    --border:         rgba(255,255,255,0.10);
+    --series-1:       #3987e5;
+    --series-2:       #d95926;
+    --good:           #0ca30c;
+    --critical:       #e66767;
+    --good-wash:      rgba(12,163,12,0.12);
+    --critical-wash:  rgba(230,103,103,0.14);
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  .viz-root {
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: var(--page);
+    color: var(--text-primary);
+    min-height: 100vh;
+    padding: 32px 20px 64px;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+
+  h1 { font-size: 26px; font-weight: 650; margin: 0 0 4px; text-wrap: balance; }
+  .subtitle { color: var(--text-secondary); font-size: 14px; margin: 0 0 28px; line-height: 1.5; max-width: 640px; }
+  .subtitle code { background: var(--gridline); padding: 1px 5px; border-radius: 4px; font-size: 12.5px; }
+
+  h2 { font-size: 16px; font-weight: 650; margin: 0 0 12px; text-wrap: balance; }
+  @media (prefers-reduced-motion: reduce) { .tooltip { transition: none; } }
+  section { margin-bottom: 36px; }
+
+  .card {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+
+  /* Stat tiles */
+  .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .tile { padding: 16px 18px; }
+  .tile .label { font-size: 12.5px; color: var(--text-secondary); margin-bottom: 8px; }
+  .tile .value { font-size: 28px; font-weight: 650; font-variant-numeric: proportional-nums; }
+  .tile .sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+  @media (max-width: 720px) { .tiles { grid-template-columns: repeat(2, 1fr); } }
+
+  /* Bar chart */
+  .chart-card { padding: 20px 24px 8px; }
+  .legend { display: flex; gap: 18px; margin-bottom: 14px; font-size: 13px; color: var(--text-secondary); }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-swatch { width: 10px; height: 10px; border-radius: 2px; }
+  #barchart { width: 100%; height: auto; display: block; }
+  .bar-label { font-size: 11.5px; fill: var(--text-primary); font-weight: 600; }
+  .group-label { font-size: 12.5px; fill: var(--text-secondary); }
+  .tooltip {
+    position: absolute; pointer-events: none; background: var(--text-primary);
+    color: var(--surface-1); font-size: 12px; padding: 5px 9px; border-radius: 6px;
+    opacity: 0; transition: opacity 0.1s; white-space: nowrap; z-index: 10;
+  }
+
+  /* Live demo cards */
+  .demo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  @media (max-width: 900px) { .demo-grid { grid-template-columns: 1fr; } }
+  .demo-card { padding: 16px 18px; }
+  .demo-title { font-size: 13.5px; font-weight: 650; margin-bottom: 8px; }
+  .demo-specialty { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
+  .demo-metrics { font-size: 11.5px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 12px; }
+  .demo-arrow { font-size: 11px; color: var(--text-muted); margin: 10px 0 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .pill-row { display: flex; flex-wrap: wrap; gap: 5px; }
+  .pill {
+    font-size: 11px; padding: 3px 8px; border-radius: 20px; border: 1px solid var(--border);
+    background: var(--page); color: var(--text-primary);
+  }
+  .pill-empty { color: var(--text-muted); font-size: 12px; font-style: italic; }
+
+  /* Table */
+  .table-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; }
+  table { border-collapse: collapse; width: 100%; font-size: 12.5px; min-width: 900px; }
+  thead th {
+    text-align: left; padding: 10px 12px; color: var(--text-secondary); font-weight: 600;
+    border-bottom: 1px solid var(--border); background: var(--surface-1);
+    position: sticky; top: 0; white-space: nowrap;
+  }
+  tbody td { padding: 9px 12px; border-bottom: 1px solid var(--gridline); vertical-align: top; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--gridline); }
+  .match-badge {
+    display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 600;
+    padding: 2px 7px; border-radius: 20px;
+  }
+  .match-badge.good { background: var(--good-wash); color: var(--good); }
+  .match-badge.critical { background: var(--critical-wash); color: var(--critical); }
+  .cell-labels { display: flex; flex-wrap: wrap; gap: 4px; max-width: 220px; }
+  .practice-id { font-variant-numeric: tabular-nums; color: var(--text-muted); }
+</style>
+
+<div class="viz-root">
+  <div class="wrap">
+    <h1>PracticeOps Agents — Evaluation Report</h1>
+    <p class="subtitle" id="subtitle"></p>
+
+    <section>
+      <div class="tiles" id="tiles"></div>
+    </section>
+
+    <section>
+      <h2>Precision / recall / F1 by agent</h2>
+      <div class="card chart-card">
+        <div class="legend">
+          <span class="legend-item"><span class="legend-swatch" style="background:var(--series-1)"></span>Diagnostic Agent</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:var(--series-2)"></span>Action Agent</span>
+        </div>
+        <div style="position:relative;">
+          <svg id="barchart" viewBox="0 0 720 260"></svg>
+          <div class="tooltip" id="tooltip"></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Live demo — full chained pipeline (Agent 1 output feeds Agent 2)</h2>
+      <div class="demo-grid" id="demos"></div>
+    </section>
+
+    <section>
+      <h2 id="table-heading">Per-case results (30 cases)</h2>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th><th>Specialty</th><th>No-show</th><th>Portal</th><th>Check-in</th>
+              <th>Calls</th><th>Denial</th><th>Util.</th>
+              <th>Expected issues</th><th>Predicted issues</th><th>Issues</th>
+              <th>Expected actions</th><th>Predicted actions</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+const REPORT_DATA = {"summary": {"diagnostic": {"precision": 0.9047619047619048, "recall": 0.8636363636363636, "f1": 0.8837209302325582}, "action": {"precision": 1.0, "recall": 1.0, "f1": 1.0}, "json_validity_rate": 1.0, "unsupported_label_rate": 0.007692307692307693, "case_count": 30, "model": "gemma2:9b"}, "per_case": [{"practice_id": "P001", "specialty": "Dermatology", "metrics": {"specialty": "Dermatology", "providers": 8, "monthly_appointments": 2400, "no_show_rate": 0.17, "portal_adoption_rate": 0.32, "average_check_in_minutes": 19, "weekly_phone_calls": 720, "claim_denial_rate": 0.06, "provider_utilization": 0.84}, "expected_issues": ["high_no_show", "low_portal_use", "long_check_in", "front_desk_overload"], "predicted_issues": ["high_no_show", "low_portal_use", "long_check_in", "front_desk_overload"], "issues_match": true, "expected_actions": ["send_appointment_reminders", "promote_portal_enrollment", "enable_digital_intake", "review_front_desk_workflow"], "predicted_actions": ["send_appointment_reminders", "promote_portal_enrollment", "enable_digital_intake", "review_front_desk_workflow"], "actions_match": true}, {"practice_id": "P002", "specialty": "Family Medicine", "metrics": {"specialty": "Family Medicine", "providers": 12, "monthly_appointments": 4200, "no_show_rate": 0.22, "portal_adoption_rate": 0.55, "average_check_in_minutes": 12, "weekly_phone_calls": 950, "claim_denial_rate": 0.09, "provider_utilization": 0.88}, "expected_issues": ["high_no_show", "front_desk_overload", "billing_risk"], "predicted_issues": ["high_no_show", "front_desk_overload"], "issues_match": false, "expected_actions": ["send_appointment_reminders", "review_front_desk_workflow", "review_claim_denials"], "predicted_actions": ["send_appointment_reminders", "review_front_desk_workflow", "review_claim_denials"], "actions_match": true}, {"practice_id": "P003", "specialty": "Orthopedics", "metrics": {"specialty": "Orthopedics", "providers": 6, "monthly_appointments": 1800, "no_show_rate": 0.08, "portal_adoption_rate": 0.62, "average_check_in_minutes": 11, "weekly_phone_calls": 480, "claim_denial_rate": 0.03, "provider_utilization": 0.91}, "expected_issues": [], "predicted_issues": [], "issues_match": true, "expected_actions": [], "predicted_actions": [], "actions_match": true}, {"practice_id": "P004", "specialty": "Cardiology", "metrics": {"specialty": "Cardiology", "providers": 10, "monthly_appointments": 3000, "no_show_rate": 0.12, "portal_adoption_rate": 0.71, "average_check_in_minutes": 9, "weekly_phone_calls": 520, "claim_denial_rate": 0.05, "provider_utilization": 0.65}, "expected_issues": ["low_provider_utilization"], "predicted_issues": [], "issues_match": false, "expected_actions": ["rebalance_provider_schedule"], "predicted_actions": ["rebalance_provider_schedule"], "actions_match": true}, {"practice_id": "P005", "specialty": "Pediatrics", "metrics": {"specialty": "Pediatrics", "providers": 15, "monthly_appointments": 5000, "no_show_rate": 0.19, "portal_adoption_rate": 0.28, "average_check_in_minutes": 17, "weekly_phone_calls": 810, "claim_denial_rate": 0.02, "provider_utilization": 0.79}, "expected_issues": ["high_no_show", "low_portal_use", "long_check_in", "front_desk_overload"], "predicted_issues": ["high_no_show", "low_portal_use", "long_check_in", "front_desk_overload"], "issues_match": true, "expected_actions": ["send_appointment_reminders", "promote_portal_enrollment", "enable_digital_intake", "review_front_desk_workflow"], "predicted_actions": ["send_appointment_reminders", "promote_portal_enrollment", "enable_digital_intake", "review_front_desk_workflow"], "actions_match": true}, {"practice_id": "P006", "specialty": "Endocrinology", "metrics": {"specialty": "Endocrinology", "providers": 4, "monthly_appointments": 900, "no_show_rate": 0.1, "portal_adoption_rate": 0.85, "average_check_in_minutes": 8, "weekly_phone_calls": 260, "claim_denial_rate": 0.11, "provider_utilization": 0.95}, "expected_issues": ["billing_risk"], "predicted_issues": ["low_portal_use"], "issues_match": false, "expected_actions": ["review_claim_denials"], "predicted_actions": ["review_claim_denials"], "actions_match": true}, {"practice_id": "P007", "specialty": "Psychiatry", "metrics": {"specialty": "Psychiatry", "providers": 5, "monthly_appointments": 1100, "no_show_rate": 0.25, "portal_adoption_rate": 0.2, "average_check_in_minutes": 22, "weekly_phone_calls": 610, "claim_denial_rate": 0.12, "provider_utilization": 0.6}, "expected_issues": ["high_no_show", "low_portal_use", "long_check_in", "front_desk_overload", "billing_risk", "low_provider_utilization"], "predicted_issues": ["high_no_show", "low_portal_use", "long_check_in", "front_desk_overload", "low_provider_utilization"], "issues_match": false, "expected_actions": ["send_appointment_reminders", "promote_portal_enrollment", "enable_digital_intake", "review_front_desk_workflow", "review_claim_denials", "rebalance_provider_schedule"], "predicted_actions": ["send_appointment_reminders", "promote_portal_enrollment", "enable_digital_intake", "review_front_desk_workflow", "review_claim_denials", "rebalance_provider_schedule"], "actions_match": true}, {"practice_id": "P008", "specialty": "Urology", "metrics": {"specialty": "Urology", "providers": 7, "monthly_appointments": 2100, "no_show_rate": 0.09, "portal_adoption_rate": 0.9, "average_check_in_minutes": 10, "weekly_phone_calls": 340, "claim_denial_rate": 0.04, "provider_utilization": 0.82}, "expected_issues": [], "predicted_issues": ["low_portal_use"], "issues_match": false, "expected_actions": [], "predicted_actions": [], "actions_match": true}, {"practice_id": "P009", "specialty": "Gastroenterology", "metrics": {"specialty": "Gastroenterology", "providers": 9, "monthly_appointments": 2700, "no_show_rate": 0.16, "portal_adoption_rate": 0.35, "average_check_in_minutes": 14, "weekly_phone_calls": 590, "claim_denial_rate": 0.07, "provider_utilization": 0.72}, "expected_issues": ["high_no_show", "low_portal_use"], "predicted_issues": ["high_no_show", "low_portal_use"], "issues_match": true, "expected_actions": ["send_appointment_reminders", "promote_portal_enrollment"], "predicted_actions": ["send_appointment_reminders", "promote_portal_enrollment"], "actions_match": true}, {"practice_id": "P010", "specialty": "Neurology", "metrics": {"specialty": "Neurology", "providers": 6, "monthly_appointments": 1600, "no_show_rate": 0.11, "portal_adoption_rate": 0.45, "average_check_in_minutes": 20, "weekly_phone_calls": 400, "claim_denial_rate": 0.03, "provider_utilization": 0.68}, "expected_issues": ["long_check_in", "low_provider_utilization"], "predicted_issues": ["long_check_in", "low_provider_utilization"], "issues_match": true, "expected_actions": ["enable_digital_intake", "rebalance_provider_schedule"], "predicted_actions": ["enable_digital_intake", "rebalance_provider_schedule"], "actions_match": true}, {"practice_id": "P011", "specialty": "Oncology", "metrics": {"specialty": "Oncology", "providers": 11, "monthly_appointments": 2900, "no_show_rate": 0.14, "portal_adoption_rate": 0.5, "average_check_in_minutes": 13, "weekly_phone_calls": 650, "claim_denial_rate": 0.1, "provider_utilization": 0.9}, "expected_issues": ["front_desk_overload", "billing_risk"], "predicted_issues": ["front_desk_overload"], "issues_match": false, "expected_actions": ["review_front_desk_workflow", "review_claim_denials"], "predicted_actions": ["review_front_desk_workflow", "review_claim_denials"], "actions_match": true}, {"practice_id": "P012", "specialty": "Rheumatology", "metrics": {"specialty": "Rheumatology", "providers": 5, "monthly_appointments": 1200, "no_show_rate": 0.2, "portal_adoption_rate": 0.38, "average_check_in_minutes": 16, "weekly_phone_calls": 700, "claim_denial_rate": 0.05, "provider_utilization": 0.55}, "expected_issues": ["high_no_show", "low_portal_use", "long_check_in", "front_desk_overload", "low_provider_utilization"], "predicted_issues": ["high_no_show", "low_portal_use", "long_check_in", "front_desk_overload", "low_provider_utilization"], "issues_match": true, "expected_actions": ["send_appointment_reminders", "promote_portal_enrollment", "enable_digital_intake", "review_front_desk_workflow", "rebalance_provider_schedule"], "predicted_actions": ["send_appointment_reminders", "promote_portal_enrollment", "enable_digital_intake", "review_front_desk_workflow", "rebalance_provider_schedule"], "actions_match": true}, {"practice_id": "P013", "specialty": "Ophthalmology", "metrics": {"specialty": "Ophthalmology", "providers": 13, "monthly_appointments": 4500, "no_show_rate": 0.07, "portal_adoption_rate": 0.68, "average_check_in_minutes": 9, "weekly_phone_calls": 300, "claim_denial_rate": 0.02, "provider_utilization": 0.93}, "expected_issues": [], "predicted_issues": ["low_provider_utilization"], "issues_match": false, "expected_actions": [], "predicted_actions": [], "actions_match": true}, {"practice_id": "P014", "specialty": "ENT", "metrics": {"specialty": "ENT", "providers": 8, "monthly_appointments": 2200, "no_show_rate": 0.15, "portal_adoption_rate": 0.4, "average_check_in_minutes": 15, "weekly_phone_calls": 600, "claim_denial_rate": 0.08, "provider_utilization": 0.7}, "expected_issues": ["high_no_show", "long_check_in", "front_desk_overload", "billing_risk"], "predicted_issues": ["high_no_show", "long_check_in", "front_desk_overload", "billing_risk"], "issues_match": true, "expected_actions": ["send_appointment_reminders", "enable_digital_intake", "review_front_desk_workflow", "review_claim_denials"], "predicted_actions": ["send_appointment_reminders", "enable_digital_intake", "review_front_desk_workflow", "review_claim_denials"], "actions_match": true}, {"practice_id": "P015", "specialty": "Podiatry", "metrics": {"specialty": "Podiatry", "providers": 4, "monthly_appointments": 800, "no_show_rate": 0.13, "portal_adoption_rate": 0.75, "average_check_in_minutes": 10, "weekly_phone_calls": 250, "claim_denial_rate": 0.01, "provider_utilization": 0.85}, "expected_issues": [], "predicted_issues": [], "issues_match": true, "expected_actions": [], "predicted_actions": [], "actions_match": true}, {"practice_id": "P016", "specialty": "Allergy", "metrics": {"specialty": "Allergy", "providers": 6, "monthly_appointments": 1700, "no_show_rate": 0.18, "portal_adoption_rate": 0.3, "average_check_in_minutes": 12, "weekly_phone_calls": 580, "claim_denial_rate": 0.03, "provider_utilization": 0.77}, "expected_issues": ["high_no_show", "low_portal_use"], "predicted_issues": ["high_no_show", "low_portal_use"], "issues_match": true, "expected_actions": ["send_appointment_reminders", "promote_portal_enrollment"], "predicted_actions": ["send_appointment_reminders", "promote_portal_enrollment"], "actions_match": true}, {"practice_id": "P017", "specialty": "Pulmonology", "metrics": {"specialty": "Pulmonology", "providers": 9, "monthly_appointments": 2500, "no_show_rate": 0.1, "portal_adoption_rate": 0.6, "average_check_in_minutes": 18, "weekly_phone_calls": 640, "claim_denial_rate": 0.06, "provider_utilization": 0.8}, "expected_issues": ["long_check_in", "front_desk_overload"], "predicted_issues": ["long_check_in", "front_desk_overload"], "issues_match": true, "expected_actions": ["enable_digital_intake", "review_front_desk_workflow"], "predicted_actions": ["enable_digital_intake", "review_front_desk_workflow"], "actions_match": true}, {"practice_id": "P018", "specialty": "Nephrology", "metrics": {"specialty": "Nephrology", "providers": 7, "monthly_appointments": 1900, "no_show_rate": 0.05, "portal_adoption_rate": 0.95, "average_check_in_minutes": 7, "weekly_phone_calls": 200, "claim_denial_rate": 0.15, "provider_utilization": 0.92}, "expected_issues": ["billing_risk"], "predicted_issues": ["billing_risk"], "issues_match": true, "expected_actions": ["review_claim_denials"], "predicted_actions": ["review_claim_denials"], "actions_match": true}, {"practice_id": "P019", "specialty": "Gynecology", "metrics": {"specialty": "Gynecology", "providers": 10, "monthly_appointments": 3200, "no_show_rate": 0.21, "portal_adoption_rate": 0.25, "average_check_in_minutes": 11, "weekly_phone_calls": 490, "claim_denial_rate": 0.04, "provider_utilization": 0.58}, "expected_issues": ["high_no_show", "low_portal_use", "low_provider_utilization"], "predicted_issues": ["high_no_show", "low_portal_use", "low_provider_utilization"], "issues_match": true, "expected_actions": ["send_appointment_reminders", "promote_portal_enrollment", "rebalance_provider_schedule"], "predicted_actions": ["send_appointment_reminders", "promote_portal_enrollment", "rebalance_provider_schedule"], "actions_match": true}, {"practice_id": "P020", "specialty": "Internal Medicine", "metrics": {"specialty": "Internal Medicine", "providers": 20, "monthly_appointments": 6500, "no_show_rate": 0.16, "portal_adoption_rate": 0.42, "average_check_in_minutes": 13, "weekly_phone_calls": 1100, "claim_denial_rate": 0.02, "provider_utilization": 0.87}, "expected_issues": ["high_no_show", "front_desk_overload"], "predicted_issues": ["high_no_show", "front_desk_overload"], "issues_match": true, "expected_actions": ["send_appointment_reminders", "review_front_desk_workflow"], "predicted_actions": ["send_appointment_reminders", "review_front_desk_workflow"], "actions_match": true}, {"practice_id": "P021", "specialty": "Geriatrics", "metrics": {"specialty": "Geriatrics", "providers": 6, "monthly_appointments": 1300, "no_show_rate": 0.24, "portal_adoption_rate": 0.33, "average_check_in_minutes": 21, "weekly_phone_calls": 550, "claim_denial_rate": 0.09, "provider_utilization": 0.63}, "expected_issues": ["high_no_show", "low_portal_use", "long_check_in", "billing_risk", "low_provider_utilization"], "predicted_issues": ["high_no_show", "low_portal_use", "long_check_in", "billing_risk", "low_provider_utilization"], "issues_match": true, "expected_actions": ["send_appointment_reminders", "promote_portal_enrollment", "enable_digital_intake", "review_claim_denials", "rebalance_provider_schedule"], "predicted_actions": ["send_appointment_reminders", "promote_portal_enrollment", "enable_digital_intake", "review_claim_denials", "rebalance_provider_schedule"], "actions_match": true}, {"practice_id": "P022", "specialty": "Sports Medicine", "metrics": {"specialty": "Sports Medicine", "providers": 5, "monthly_appointments": 1500, "no_show_rate": 0.06, "portal_adoption_rate": 0.8, "average_check_in_minutes": 8, "weekly_phone_calls": 310, "claim_denial_rate": 0.03, "provider_utilization": 0.89}, "expected_issues": [], "predicted_issues": ["low_portal_use"], "issues_match": false, "expected_actions": [], "predicted_actions": [], "actions_match": true}, {"practice_id": "P023", "specialty": "Plastic Surgery", "metrics": {"specialty": "Plastic Surgery", "providers": 4, "monthly_appointments": 1000, "no_show_rate": 0.09, "portal_adoption_rate": 0.7, "average_check_in_minutes": 10, "weekly_phone_calls": 220, "claim_denial_rate": 0.07, "provider_utilization": 0.94}, "expected_issues": [], "predicted_issues": [], "issues_match": true, "expected_actions": [], "predicted_actions": [], "actions_match": true}, {"practice_id": "P024", "specialty": "Pain Management", "metrics": {"specialty": "Pain Management", "providers": 8, "monthly_appointments": 2300, "no_show_rate": 0.19, "portal_adoption_rate": 0.36, "average_check_in_minutes": 15, "weekly_phone_calls": 690, "claim_denial_rate": 0.08, "provider_utilization": 0.66}, "expected_issues": ["high_no_show", "low_portal_use", "long_check_in", "front_desk_overload", "billing_risk", "low_provider_utilization"], "predicted_issues": ["high_no_show", "low_portal_use", "long_check_in", "front_desk_overload", "low_provider_utilization"], "issues_match": false, "expected_actions": ["send_appointment_reminders", "promote_portal_enrollment", "enable_digital_intake", "review_front_desk_workflow", "review_claim_denials", "rebalance_provider_schedule"], "predicted_actions": ["send_appointment_reminders", "promote_portal_enrollment", "enable_digital_intake", "review_front_desk_workflow", "review_claim_denials", "rebalance_provider_schedule"], "actions_match": true}, {"practice_id": "P025", "specialty": "Vascular Surgery", "metrics": {"specialty": "Vascular Surgery", "providers": 6, "monthly_appointments": 1650, "no_show_rate": 0.11, "portal_adoption_rate": 0.55, "average_check_in_minutes": 14, "weekly_phone_calls": 470, "claim_denial_rate": 0.05, "provider_utilization": 0.72}, "expected_issues": [], "predicted_issues": [], "issues_match": true, "expected_actions": [], "predicted_actions": [], "actions_match": true}, {"practice_id": "P026", "specialty": "Podiatric Surgery", "metrics": {"specialty": "Podiatric Surgery", "providers": 9, "monthly_appointments": 2600, "no_show_rate": 0.16, "portal_adoption_rate": 0.48, "average_check_in_minutes": 16, "weekly_phone_calls": 610, "claim_denial_rate": 0.03, "provider_utilization": 0.69}, "expected_issues": ["high_no_show", "long_check_in", "front_desk_overload", "low_provider_utilization"], "predicted_issues": ["high_no_show", "long_check_in", "front_desk_overload"], "issues_match": false, "expected_actions": ["send_appointment_reminders", "enable_digital_intake", "review_front_desk_workflow", "rebalance_provider_schedule"], "predicted_actions": ["send_appointment_reminders", "enable_digital_intake", "review_front_desk_workflow", "rebalance_provider_schedule"], "actions_match": true}, {"practice_id": "P027", "specialty": "Hematology", "metrics": {"specialty": "Hematology", "providers": 5, "monthly_appointments": 1150, "no_show_rate": 0.08, "portal_adoption_rate": 0.65, "average_check_in_minutes": 9, "weekly_phone_calls": 290, "claim_denial_rate": 0.13, "provider_utilization": 0.91}, "expected_issues": ["billing_risk"], "predicted_issues": [], "issues_match": false, "expected_actions": ["review_claim_denials"], "predicted_actions": ["review_claim_denials"], "actions_match": true}, {"practice_id": "P028", "specialty": "Physical Therapy", "metrics": {"specialty": "Physical Therapy", "providers": 12, "monthly_appointments": 3600, "no_show_rate": 0.14, "portal_adoption_rate": 0.58, "average_check_in_minutes": 11, "weekly_phone_calls": 530, "claim_denial_rate": 0.04, "provider_utilization": 0.75}, "expected_issues": [], "predicted_issues": ["low_portal_use"], "issues_match": false, "expected_actions": [], "predicted_actions": [], "actions_match": true}, {"practice_id": "P029", "specialty": "Dermatology", "metrics": {"specialty": "Dermatology", "providers": 6, "monthly_appointments": 1900, "no_show_rate": 0.23, "portal_adoption_rate": 0.22, "average_check_in_minutes": 20, "weekly_phone_calls": 780, "claim_denial_rate": 0.1, "provider_utilization": 0.52}, "expected_issues": ["high_no_show", "low_portal_use", "long_check_in", "front_desk_overload", "billing_risk", "low_provider_utilization"], "predicted_issues": ["high_no_show", "low_portal_use", "long_check_in", "front_desk_overload", "low_provider_utilization"], "issues_match": false, "expected_actions": ["send_appointment_reminders", "promote_portal_enrollment", "enable_digital_intake", "review_front_desk_workflow", "review_claim_denials", "rebalance_provider_schedule"], "predicted_actions": ["send_appointment_reminders", "promote_portal_enrollment", "enable_digital_intake", "review_front_desk_workflow", "review_claim_denials", "rebalance_provider_schedule"], "actions_match": true}, {"practice_id": "P030", "specialty": "Family Medicine", "metrics": {"specialty": "Family Medicine", "providers": 14, "monthly_appointments": 4800, "no_show_rate": 0.09, "portal_adoption_rate": 0.9, "average_check_in_minutes": 8, "weekly_phone_calls": 340, "claim_denial_rate": 0.01, "provider_utilization": 0.83}, "expected_issues": [], "predicted_issues": ["low_portal_use"], "issues_match": false, "expected_actions": [], "predicted_actions": [], "actions_match": true}], "live_demos": [{"label": "Spec worked example", "metrics": {"specialty": "Dermatology", "providers": 8, "monthly_appointments": 2400, "no_show_rate": 0.17, "portal_adoption_rate": 0.32, "average_check_in_minutes": 19, "weekly_phone_calls": 720, "claim_denial_rate": 0.06, "provider_utilization": 0.84}, "issues": ["high_no_show", "low_portal_use", "long_check_in", "front_desk_overload"], "actions": ["send_appointment_reminders", "promote_portal_enrollment", "enable_digital_intake", "review_front_desk_workflow"]}, {"label": "Healthy practice", "metrics": {"specialty": "Orthopedics", "providers": 6, "monthly_appointments": 1800, "no_show_rate": 0.08, "portal_adoption_rate": 0.62, "average_check_in_minutes": 11, "weekly_phone_calls": 480, "claim_denial_rate": 0.03, "provider_utilization": 0.91}, "issues": [], "actions": []}, {"label": "All issues present", "metrics": {"specialty": "Psychiatry", "providers": 5, "monthly_appointments": 1100, "no_show_rate": 0.25, "portal_adoption_rate": 0.2, "average_check_in_minutes": 22, "weekly_phone_calls": 610, "claim_denial_rate": 0.12, "provider_utilization": 0.6}, "issues": ["high_no_show", "low_portal_use", "long_check_in", "front_desk_overload", "low_provider_utilization"], "actions": ["send_appointment_reminders", "promote_portal_enrollment", "enable_digital_intake", "review_front_desk_workflow", "rebalance_provider_schedule"]}]};
+
+const ISSUE_SHORT = {
+  high_no_show: "high_no_show", low_portal_use: "low_portal_use",
+  long_check_in: "long_check_in", front_desk_overload: "front_desk_overload",
+  billing_risk: "billing_risk", low_provider_utilization: "low_provider_util",
+};
+const ACTION_SHORT = {
+  send_appointment_reminders: "send_reminders", promote_portal_enrollment: "promote_portal",
+  enable_digital_intake: "digital_intake", review_front_desk_workflow: "review_front_desk",
+  review_claim_denials: "review_denials", rebalance_provider_schedule: "rebalance_schedule",
+};
+
+function pct(x) { return (x * 100).toFixed(0) + "%"; }
+function f2(x) { return x.toFixed(2); }
+
+function renderSubtitle() {
+  document.getElementById("subtitle").innerHTML =
+    `Two-agent LLM pipeline for medical-practice operational metrics, evaluated against ` +
+    `<code>${REPORT_DATA.summary.model}</code> running locally via Ollama. ` +
+    `${REPORT_DATA.summary.case_count} test cases, multi-label precision/recall/F1, ` +
+    `plus JSON-validity and unsupported-label reliability checks.`;
+}
+
+function renderTiles() {
+  const s = REPORT_DATA.summary;
+  const tiles = [
+    { label: "Diagnostic Agent F1", value: f2(s.diagnostic.f1), sub: `P ${f2(s.diagnostic.precision)} · R ${f2(s.diagnostic.recall)}` },
+    { label: "Action Agent F1", value: f2(s.action.f1), sub: `P ${f2(s.action.precision)} · R ${f2(s.action.recall)}` },
+    { label: "JSON validity rate", value: pct(s.json_validity_rate), sub: "target 100%" },
+    { label: "Unsupported-label rate", value: pct(s.unsupported_label_rate), sub: "target 0%" },
+  ];
+  document.getElementById("tiles").innerHTML = tiles.map(t => `
+    <div class="card tile">
+      <div class="label">${t.label}</div>
+      <div class="value">${t.value}</div>
+      <div class="sub">${t.sub}</div>
+    </div>`).join("");
+}
+
+function renderChart() {
+  const s = REPORT_DATA.summary;
+  const metrics = ["precision", "recall", "f1"];
+  const metricLabels = ["Precision", "Recall", "F1"];
+  const svg = document.getElementById("barchart");
+  const tooltip = document.getElementById("tooltip");
+  const W = 720, H = 260, padL = 36, padR = 16, padT = 16, padB = 34;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const groupW = plotW / 3;
+  const barW = 24, gap = 2;
+
+  let svgContent = "";
+  // gridlines at 0, .25, .5, .75, 1
+  [0, 0.25, 0.5, 0.75, 1].forEach(v => {
+    const y = padT + plotH * (1 - v);
+    svgContent += `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="var(--gridline)" stroke-width="1"/>`;
+    svgContent += `<text x="${padL - 8}" y="${y + 4}" text-anchor="end" class="group-label">${v.toFixed(2)}</text>`;
+  });
+  svgContent += `<line x1="${padL}" y1="${padT + plotH}" x2="${W - padR}" y2="${padT + plotH}" stroke="var(--baseline)" stroke-width="1"/>`;
+
+  metrics.forEach((m, i) => {
+    const groupX = padL + i * groupW + groupW / 2;
+    const vals = [s.diagnostic[m], s.action[m]];
+    const colors = ["var(--series-1)", "var(--series-2)"];
+    const names = ["Diagnostic Agent", "Action Agent"];
+    vals.forEach((v, j) => {
+      const barH = plotH * v;
+      const x = groupX - barW - gap / 2 + j * (barW + gap);
+      const y = padT + plotH - barH;
+      svgContent += `<rect class="bar" data-tip="${names[j]}: ${f2(v)}" x="${x}" y="${y}" width="${barW}" height="${Math.max(barH,1)}" rx="4" fill="${colors[j]}"/>`;
+      svgContent += `<text class="bar-label" x="${x + barW / 2}" y="${y - 6}" text-anchor="middle">${f2(v)}</text>`;
+    });
+    svgContent += `<text class="group-label" x="${groupX}" y="${padT + plotH + 20}" text-anchor="middle">${metricLabels[i]}</text>`;
+  });
+
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.innerHTML = svgContent;
+
+  svg.querySelectorAll(".bar").forEach(bar => {
+    bar.addEventListener("mousemove", (e) => {
+      const rect = svg.getBoundingClientRect();
+      tooltip.textContent = bar.getAttribute("data-tip");
+      tooltip.style.left = (e.clientX - rect.left + 12) + "px";
+      tooltip.style.top = (e.clientY - rect.top - 28) + "px";
+      tooltip.style.opacity = 1;
+    });
+    bar.addEventListener("mouseleave", () => { tooltip.style.opacity = 0; });
+  });
+}
+
+function pillRow(labels, shortMap) {
+  if (!labels.length) return `<span class="pill-empty">none</span>`;
+  return `<span class="pill-row">${labels.map(l => `<span class="pill">${shortMap[l] || l}</span>`).join("")}</span>`;
+}
+
+function renderDemos() {
+  const html = REPORT_DATA.live_demos.map(d => `
+    <div class="card demo-card">
+      <div class="demo-title">${d.label}</div>
+      <div class="demo-specialty">${d.metrics.specialty} · ${d.metrics.providers} providers</div>
+      <div class="demo-metrics">
+        No-show ${pct(d.metrics.no_show_rate)} · Portal ${pct(d.metrics.portal_adoption_rate)} ·
+        Check-in ${d.metrics.average_check_in_minutes}min<br/>
+        Calls ${d.metrics.weekly_phone_calls}/wk · Denial ${pct(d.metrics.claim_denial_rate)} ·
+        Util. ${pct(d.metrics.provider_utilization)}
+      </div>
+      <div class="demo-arrow">Agent 1 → detected issues</div>
+      ${pillRow(d.issues, ISSUE_SHORT)}
+      <div class="demo-arrow">Agent 2 → recommended actions</div>
+      ${pillRow(d.actions, ACTION_SHORT)}
+    </div>`).join("");
+  document.getElementById("demos").innerHTML = html;
+}
+
+function matchBadge(isMatch) {
+  return isMatch
+    ? `<span class="match-badge good">✓ match</span>`
+    : `<span class="match-badge critical">✗ diff</span>`;
+}
+
+function renderTable() {
+  const rows = REPORT_DATA.per_case.map(c => `
+    <tr>
+      <td class="practice-id">${c.practice_id}</td>
+      <td>${c.specialty}</td>
+      <td>${pct(c.metrics.no_show_rate)}</td>
+      <td>${pct(c.metrics.portal_adoption_rate)}</td>
+      <td>${c.metrics.average_check_in_minutes}m</td>
+      <td>${c.metrics.weekly_phone_calls}</td>
+      <td>${pct(c.metrics.claim_denial_rate)}</td>
+      <td>${pct(c.metrics.provider_utilization)}</td>
+      <td><div class="cell-labels">${pillRow(c.expected_issues, ISSUE_SHORT)}</div></td>
+      <td><div class="cell-labels">${pillRow(c.predicted_issues, ISSUE_SHORT)}</div></td>
+      <td>${matchBadge(c.issues_match)}</td>
+      <td><div class="cell-labels">${pillRow(c.expected_actions, ACTION_SHORT)}</div></td>
+      <td><div class="cell-labels">${pillRow(c.predicted_actions, ACTION_SHORT)}</div></td>
+      <td>${matchBadge(c.actions_match)}</td>
+    </tr>`).join("");
+  document.getElementById("table-body").innerHTML = rows;
+  document.getElementById("table-heading").textContent = `Per-case results (${REPORT_DATA.per_case.length} cases)`;
+}
+
+renderSubtitle();
+renderTiles();
+renderChart();
+renderDemos();
+renderTable();
+</script>
