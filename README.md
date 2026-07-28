@@ -148,6 +148,35 @@ multi-label precision, recall, and F1. Agent 2 is scored against ground-truth is
 (not Agent 1's predictions) so its score isn't polluted by Agent 1's classification errors
 — the live dashboard, by contrast, chains Agent 1's real output into Agent 2.
 
+### How precision, recall, and F1 are calculated
+
+Scoring is **multi-label** and **micro-averaged**: for each test case, `evaluate.py`
+compares the agent's predicted label set against the expected set and adds to three
+running totals — `tp` (correctly predicted labels), `fp` (predicted but not expected), `fn`
+(expected but not predicted) — across all 30 cases, then divides only once at the end:
+
+```
+precision = tp / (tp + fp)
+recall    = tp / (tp + fn)
+f1        = 2 * precision * recall / (precision + recall)
+```
+
+Concrete example, using three real cases from a live `gemma2:9b` Diagnostic Agent run
+(`test_cases.json` / `report.html`):
+
+| Case | `expected_issues` | `predicted_issues` | TP | FP | FN |
+|---|---|---|---|---|---|
+| `P001` | `high_no_show`, `low_portal_use`, `long_check_in`, `front_desk_overload` | same, all 4 | 4 | 0 | 0 |
+| `P002` | `high_no_show`, `front_desk_overload`, `billing_risk` | `high_no_show`, `front_desk_overload` (missed `billing_risk`, whose `claim_denial_rate` of 0.09 only just clears the 0.08 threshold) | 2 | 0 | 1 |
+| `P008` | *(none — healthy practice)* | `low_portal_use` (hallucinated — this practice's `portal_adoption_rate` is 0.90, well above the 0.40 threshold) | 0 | 1 | 0 |
+
+Pooling just these three cases: `tp = 4+2+0 = 6`, `fp = 0+0+1 = 1`, `fn = 0+1+0 = 1`, so
+`precision = 6/7 ≈ 0.86`, `recall = 6/7 ≈ 0.86`, `f1 ≈ 0.86` — over all 30 cases the same
+arithmetic produces the 0.90/0.86/0.88 in the table below. Two edge cases in the code:
+`tp+fp == 0` (agent predicted nothing) defaults precision to `1.0`, and `tp+fn == 0`
+(nothing was expected) defaults recall to `1.0` — so a correctly-predicted empty set, like
+a healthy practice with no hallucinated labels, doesn't get penalized.
+
 `gemma2:9b` is the model used by default (see `OLLAMA_MODEL` in `.env`), chosen after
 comparing it against other locally-available models on the same test suite:
 
@@ -166,6 +195,28 @@ hold similarly high precision. The Action Agent is near-parity either way, since
 given set of issues to actions is a simpler, more mechanical task than reading thresholds
 off raw metrics. Regenerate this chart with `python generate_charts.py` (needs
 `pip install matplotlib`) after any change to the numbers above.
+
+### Confusion matrices
+
+This is multi-label classification — each practice can have zero to six issues at once —
+so there's no single N×N confusion matrix the way there would be for a single-label
+classifier. Instead each label gets its own independent 2×2 (present/absent) matrix, from
+the same live `gemma2:9b` run as the table above:
+
+![Diagnostic Agent per-label confusion matrices](assets/confusion_matrix_diagnostic.png)
+
+![Action Agent per-label confusion matrices](assets/confusion_matrix_action.png)
+
+Summing all six Diagnostic Agent matrices reproduces the aggregate precision/recall in the
+table above (57 TP, 6 FP, 9 FN → precision 57/63 ≈ 0.90, recall 57/66 ≈ 0.86) — but the
+per-label view surfaces something the aggregate hides: **`billing_risk` is the model's weak
+spot**, missed 7 of 10 times (TP 3, FN 7), while every other issue label sits at perfect or
+near-perfect recall. `low_portal_use` is the main source of false positives (FP 5) — the
+model over-triggers it more than any other label. The Action Agent's matrices are all
+clean diagonals (zero FP/FN on every label), matching its 1.00/1.00/1.00 score, since it's
+only ever scored on correct input. Regenerate both with
+`python generate_confusion_matrix.py` (needs `pip install matplotlib`; makes one live
+Ollama call per test case per agent).
 
 Supporting reliability metrics:
 
