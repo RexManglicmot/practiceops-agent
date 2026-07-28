@@ -1,0 +1,656 @@
+[
+  {
+    "practice_id": "P001",
+    "metrics": {
+      "specialty": "Dermatology",
+      "providers": 8,
+      "monthly_appointments": 2400,
+      "no_show_rate": 0.17,
+      "portal_adoption_rate": 0.32,
+      "average_check_in_minutes": 19,
+      "weekly_phone_calls": 720,
+      "claim_denial_rate": 0.06,
+      "provider_utilization": 0.84
+    },
+    "expected_issues": [
+      "high_no_show",
+      "low_portal_use",
+      "long_check_in",
+      "front_desk_overload"
+    ],
+    "expected_actions": [
+      "send_appointment_reminders",
+      "promote_portal_enrollment",
+      "enable_digital_intake",
+      "review_front_desk_workflow"
+    ]
+  },
+  {
+    "practice_id": "P002",
+    "metrics": {
+      "specialty": "Family Medicine",
+      "providers": 12,
+      "monthly_appointments": 4200,
+      "no_show_rate": 0.22,
+      "portal_adoption_rate": 0.55,
+      "average_check_in_minutes": 12,
+      "weekly_phone_calls": 950,
+      "claim_denial_rate": 0.09,
+      "provider_utilization": 0.88
+    },
+    "expected_issues": [
+      "high_no_show",
+      "front_desk_overload",
+      "billing_risk"
+    ],
+    "expected_actions": [
+      "send_appointment_reminders",
+      "review_front_desk_workflow",
+      "review_claim_denials"
+    ]
+  },
+  {
+    "practice_id": "P003",
+    "metrics": {
+      "specialty": "Orthopedics",
+      "providers": 6,
+      "monthly_appointments": 1800,
+      "no_show_rate": 0.08,
+      "portal_adoption_rate": 0.62,
+      "average_check_in_minutes": 11,
+      "weekly_phone_calls": 480,
+      "claim_denial_rate": 0.03,
+      "provider_utilization": 0.91
+    },
+    "expected_issues": [],
+    "expected_actions": []
+  },
+  {
+    "practice_id": "P004",
+    "metrics": {
+      "specialty": "Cardiology",
+      "providers": 10,
+      "monthly_appointments": 3000,
+      "no_show_rate": 0.12,
+      "portal_adoption_rate": 0.71,
+      "average_check_in_minutes": 9,
+      "weekly_phone_calls": 520,
+      "claim_denial_rate": 0.05,
+      "provider_utilization": 0.65
+    },
+    "expected_issues": [
+      "low_provider_utilization"
+    ],
+    "expected_actions": [
+      "rebalance_provider_schedule"
+    ]
+  },
+  {
+    "practice_id": "P005",
+    "metrics": {
+      "specialty": "Pediatrics",
+      "providers": 15,
+      "monthly_appointments": 5000,
+      "no_show_rate": 0.19,
+      "portal_adoption_rate": 0.28,
+      "average_check_in_minutes": 17,
+      "weekly_phone_calls": 810,
+      "claim_denial_rate": 0.02,
+      "provider_utilization": 0.79
+    },
+    "expected_issues": [
+      "high_no_show",
+      "low_portal_use",
+      "long_check_in",
+      "front_desk_overload"
+    ],
+    "expected_actions": [
+      "send_appointment_reminders",
+      "promote_portal_enrollment",
+      "enable_digital_intake",
+      "review_front_desk_workflow"
+    ]
+  },
+  {
+    "practice_id": "P006",
+    "metrics": {
+      "specialty": "Endocrinology",
+      "providers": 4,
+      "monthly_appointments": 900,
+      "no_show_rate": 0.1,
+      "portal_adoption_rate": 0.85,
+      "average_check_in_minutes": 8,
+      "weekly_phone_calls": 260,
+      "claim_denial_rate": 0.11,
+      "provider_utilization": 0.95
+    },
+    "expected_issues": [
+      "billing_risk"
+    ],
+    "expected_actions": [
+      "review_claim_denials"
+    ]
+  },
+  {
+    "practice_id": "P007",
+    "metrics": {
+      "specialty": "Psychiatry",
+      "providers": 5,
+      "monthly_appointments": 1100,
+      "no_show_rate": 0.25,
+      "portal_adoption_rate": 0.2,
+      "average_check_in_minutes": 22,
+      "weekly_phone_calls": 610,
+      "claim_denial_rate": 0.12,
+      "provider_utilization": 0.6
+    },
+    "expected_issues": [
+      "high_no_show",
+      "low_portal_use",
+      "long_check_in",
+      "front_desk_overload",
+      "billing_risk",
+      "low_provider_utilization"
+    ],
+    "expected_actions": [
+      "send_appointment_reminders",
+      "promote_portal_enrollment",
+      "enable_digital_intake",
+      "review_front_desk_workflow",
+      "review_claim_denials",
+      "rebalance_provider_schedule"
+    ]
+  },
+  {
+    "practice_id": "P008",
+    "metrics": {
+      "specialty": "Urology",
+      "providers": 7,
+      "monthly_appointments": 2100,
+      "no_show_rate": 0.09,
+      "portal_adoption_rate": 0.9,
+      "average_check_in_minutes": 10,
+      "weekly_phone_calls": 340,
+      "claim_denial_rate": 0.04,
+      "provider_utilization": 0.82
+    },
+    "expected_issues": [],
+    "expected_actions": []
+  },
+  {
+    "practice_id": "P009",
+    "metrics": {
+      "specialty": "Gastroenterology",
+      "providers": 9,
+      "monthly_appointments": 2700,
+      "no_show_rate": 0.16,
+      "portal_adoption_rate": 0.35,
+      "average_check_in_minutes": 14,
+      "weekly_phone_calls": 590,
+      "claim_denial_rate": 0.07,
+      "provider_utilization": 0.72
+    },
+    "expected_issues": [
+      "high_no_show",
+      "low_portal_use"
+    ],
+    "expected_actions": [
+      "send_appointment_reminders",
+      "promote_portal_enrollment"
+    ]
+  },
+  {
+    "practice_id": "P010",
+    "metrics": {
+      "specialty": "Neurology",
+      "providers": 6,
+      "monthly_appointments": 1600,
+      "no_show_rate": 0.11,
+      "portal_adoption_rate": 0.45,
+      "average_check_in_minutes": 20,
+      "weekly_phone_calls": 400,
+      "claim_denial_rate": 0.03,
+      "provider_utilization": 0.68
+    },
+    "expected_issues": [
+      "long_check_in",
+      "low_provider_utilization"
+    ],
+    "expected_actions": [
+      "enable_digital_intake",
+      "rebalance_provider_schedule"
+    ]
+  },
+  {
+    "practice_id": "P011",
+    "metrics": {
+      "specialty": "Oncology",
+      "providers": 11,
+      "monthly_appointments": 2900,
+      "no_show_rate": 0.14,
+      "portal_adoption_rate": 0.5,
+      "average_check_in_minutes": 13,
+      "weekly_phone_calls": 650,
+      "claim_denial_rate": 0.1,
+      "provider_utilization": 0.9
+    },
+    "expected_issues": [
+      "front_desk_overload",
+      "billing_risk"
+    ],
+    "expected_actions": [
+      "review_front_desk_workflow",
+      "review_claim_denials"
+    ]
+  },
+  {
+    "practice_id": "P012",
+    "metrics": {
+      "specialty": "Rheumatology",
+      "providers": 5,
+      "monthly_appointments": 1200,
+      "no_show_rate": 0.2,
+      "portal_adoption_rate": 0.38,
+      "average_check_in_minutes": 16,
+      "weekly_phone_calls": 700,
+      "claim_denial_rate": 0.05,
+      "provider_utilization": 0.55
+    },
+    "expected_issues": [
+      "high_no_show",
+      "low_portal_use",
+      "long_check_in",
+      "front_desk_overload",
+      "low_provider_utilization"
+    ],
+    "expected_actions": [
+      "send_appointment_reminders",
+      "promote_portal_enrollment",
+      "enable_digital_intake",
+      "review_front_desk_workflow",
+      "rebalance_provider_schedule"
+    ]
+  },
+  {
+    "practice_id": "P013",
+    "metrics": {
+      "specialty": "Ophthalmology",
+      "providers": 13,
+      "monthly_appointments": 4500,
+      "no_show_rate": 0.07,
+      "portal_adoption_rate": 0.68,
+      "average_check_in_minutes": 9,
+      "weekly_phone_calls": 300,
+      "claim_denial_rate": 0.02,
+      "provider_utilization": 0.93
+    },
+    "expected_issues": [],
+    "expected_actions": []
+  },
+  {
+    "practice_id": "P014",
+    "metrics": {
+      "specialty": "ENT",
+      "providers": 8,
+      "monthly_appointments": 2200,
+      "no_show_rate": 0.15,
+      "portal_adoption_rate": 0.4,
+      "average_check_in_minutes": 15,
+      "weekly_phone_calls": 600,
+      "claim_denial_rate": 0.08,
+      "provider_utilization": 0.7
+    },
+    "expected_issues": [
+      "high_no_show",
+      "long_check_in",
+      "front_desk_overload",
+      "billing_risk"
+    ],
+    "expected_actions": [
+      "send_appointment_reminders",
+      "enable_digital_intake",
+      "review_front_desk_workflow",
+      "review_claim_denials"
+    ]
+  },
+  {
+    "practice_id": "P015",
+    "metrics": {
+      "specialty": "Podiatry",
+      "providers": 4,
+      "monthly_appointments": 800,
+      "no_show_rate": 0.13,
+      "portal_adoption_rate": 0.75,
+      "average_check_in_minutes": 10,
+      "weekly_phone_calls": 250,
+      "claim_denial_rate": 0.01,
+      "provider_utilization": 0.85
+    },
+    "expected_issues": [],
+    "expected_actions": []
+  },
+  {
+    "practice_id": "P016",
+    "metrics": {
+      "specialty": "Allergy",
+      "providers": 6,
+      "monthly_appointments": 1700,
+      "no_show_rate": 0.18,
+      "portal_adoption_rate": 0.3,
+      "average_check_in_minutes": 12,
+      "weekly_phone_calls": 580,
+      "claim_denial_rate": 0.03,
+      "provider_utilization": 0.77
+    },
+    "expected_issues": [
+      "high_no_show",
+      "low_portal_use"
+    ],
+    "expected_actions": [
+      "send_appointment_reminders",
+      "promote_portal_enrollment"
+    ]
+  },
+  {
+    "practice_id": "P017",
+    "metrics": {
+      "specialty": "Pulmonology",
+      "providers": 9,
+      "monthly_appointments": 2500,
+      "no_show_rate": 0.1,
+      "portal_adoption_rate": 0.6,
+      "average_check_in_minutes": 18,
+      "weekly_phone_calls": 640,
+      "claim_denial_rate": 0.06,
+      "provider_utilization": 0.8
+    },
+    "expected_issues": [
+      "long_check_in",
+      "front_desk_overload"
+    ],
+    "expected_actions": [
+      "enable_digital_intake",
+      "review_front_desk_workflow"
+    ]
+  },
+  {
+    "practice_id": "P018",
+    "metrics": {
+      "specialty": "Nephrology",
+      "providers": 7,
+      "monthly_appointments": 1900,
+      "no_show_rate": 0.05,
+      "portal_adoption_rate": 0.95,
+      "average_check_in_minutes": 7,
+      "weekly_phone_calls": 200,
+      "claim_denial_rate": 0.15,
+      "provider_utilization": 0.92
+    },
+    "expected_issues": [
+      "billing_risk"
+    ],
+    "expected_actions": [
+      "review_claim_denials"
+    ]
+  },
+  {
+    "practice_id": "P019",
+    "metrics": {
+      "specialty": "Gynecology",
+      "providers": 10,
+      "monthly_appointments": 3200,
+      "no_show_rate": 0.21,
+      "portal_adoption_rate": 0.25,
+      "average_check_in_minutes": 11,
+      "weekly_phone_calls": 490,
+      "claim_denial_rate": 0.04,
+      "provider_utilization": 0.58
+    },
+    "expected_issues": [
+      "high_no_show",
+      "low_portal_use",
+      "low_provider_utilization"
+    ],
+    "expected_actions": [
+      "send_appointment_reminders",
+      "promote_portal_enrollment",
+      "rebalance_provider_schedule"
+    ]
+  },
+  {
+    "practice_id": "P020",
+    "metrics": {
+      "specialty": "Internal Medicine",
+      "providers": 20,
+      "monthly_appointments": 6500,
+      "no_show_rate": 0.16,
+      "portal_adoption_rate": 0.42,
+      "average_check_in_minutes": 13,
+      "weekly_phone_calls": 1100,
+      "claim_denial_rate": 0.02,
+      "provider_utilization": 0.87
+    },
+    "expected_issues": [
+      "high_no_show",
+      "front_desk_overload"
+    ],
+    "expected_actions": [
+      "send_appointment_reminders",
+      "review_front_desk_workflow"
+    ]
+  },
+  {
+    "practice_id": "P021",
+    "metrics": {
+      "specialty": "Geriatrics",
+      "providers": 6,
+      "monthly_appointments": 1300,
+      "no_show_rate": 0.24,
+      "portal_adoption_rate": 0.33,
+      "average_check_in_minutes": 21,
+      "weekly_phone_calls": 550,
+      "claim_denial_rate": 0.09,
+      "provider_utilization": 0.63
+    },
+    "expected_issues": [
+      "high_no_show",
+      "low_portal_use",
+      "long_check_in",
+      "billing_risk",
+      "low_provider_utilization"
+    ],
+    "expected_actions": [
+      "send_appointment_reminders",
+      "promote_portal_enrollment",
+      "enable_digital_intake",
+      "review_claim_denials",
+      "rebalance_provider_schedule"
+    ]
+  },
+  {
+    "practice_id": "P022",
+    "metrics": {
+      "specialty": "Sports Medicine",
+      "providers": 5,
+      "monthly_appointments": 1500,
+      "no_show_rate": 0.06,
+      "portal_adoption_rate": 0.8,
+      "average_check_in_minutes": 8,
+      "weekly_phone_calls": 310,
+      "claim_denial_rate": 0.03,
+      "provider_utilization": 0.89
+    },
+    "expected_issues": [],
+    "expected_actions": []
+  },
+  {
+    "practice_id": "P023",
+    "metrics": {
+      "specialty": "Plastic Surgery",
+      "providers": 4,
+      "monthly_appointments": 1000,
+      "no_show_rate": 0.09,
+      "portal_adoption_rate": 0.7,
+      "average_check_in_minutes": 10,
+      "weekly_phone_calls": 220,
+      "claim_denial_rate": 0.07,
+      "provider_utilization": 0.94
+    },
+    "expected_issues": [],
+    "expected_actions": []
+  },
+  {
+    "practice_id": "P024",
+    "metrics": {
+      "specialty": "Pain Management",
+      "providers": 8,
+      "monthly_appointments": 2300,
+      "no_show_rate": 0.19,
+      "portal_adoption_rate": 0.36,
+      "average_check_in_minutes": 15,
+      "weekly_phone_calls": 690,
+      "claim_denial_rate": 0.08,
+      "provider_utilization": 0.66
+    },
+    "expected_issues": [
+      "high_no_show",
+      "low_portal_use",
+      "long_check_in",
+      "front_desk_overload",
+      "billing_risk",
+      "low_provider_utilization"
+    ],
+    "expected_actions": [
+      "send_appointment_reminders",
+      "promote_portal_enrollment",
+      "enable_digital_intake",
+      "review_front_desk_workflow",
+      "review_claim_denials",
+      "rebalance_provider_schedule"
+    ]
+  },
+  {
+    "practice_id": "P025",
+    "metrics": {
+      "specialty": "Vascular Surgery",
+      "providers": 6,
+      "monthly_appointments": 1650,
+      "no_show_rate": 0.11,
+      "portal_adoption_rate": 0.55,
+      "average_check_in_minutes": 14,
+      "weekly_phone_calls": 470,
+      "claim_denial_rate": 0.05,
+      "provider_utilization": 0.72
+    },
+    "expected_issues": [],
+    "expected_actions": []
+  },
+  {
+    "practice_id": "P026",
+    "metrics": {
+      "specialty": "Podiatric Surgery",
+      "providers": 9,
+      "monthly_appointments": 2600,
+      "no_show_rate": 0.16,
+      "portal_adoption_rate": 0.48,
+      "average_check_in_minutes": 16,
+      "weekly_phone_calls": 610,
+      "claim_denial_rate": 0.03,
+      "provider_utilization": 0.69
+    },
+    "expected_issues": [
+      "high_no_show",
+      "long_check_in",
+      "front_desk_overload",
+      "low_provider_utilization"
+    ],
+    "expected_actions": [
+      "send_appointment_reminders",
+      "enable_digital_intake",
+      "review_front_desk_workflow",
+      "rebalance_provider_schedule"
+    ]
+  },
+  {
+    "practice_id": "P027",
+    "metrics": {
+      "specialty": "Hematology",
+      "providers": 5,
+      "monthly_appointments": 1150,
+      "no_show_rate": 0.08,
+      "portal_adoption_rate": 0.65,
+      "average_check_in_minutes": 9,
+      "weekly_phone_calls": 290,
+      "claim_denial_rate": 0.13,
+      "provider_utilization": 0.91
+    },
+    "expected_issues": [
+      "billing_risk"
+    ],
+    "expected_actions": [
+      "review_claim_denials"
+    ]
+  },
+  {
+    "practice_id": "P028",
+    "metrics": {
+      "specialty": "Physical Therapy",
+      "providers": 12,
+      "monthly_appointments": 3600,
+      "no_show_rate": 0.14,
+      "portal_adoption_rate": 0.58,
+      "average_check_in_minutes": 11,
+      "weekly_phone_calls": 530,
+      "claim_denial_rate": 0.04,
+      "provider_utilization": 0.75
+    },
+    "expected_issues": [],
+    "expected_actions": []
+  },
+  {
+    "practice_id": "P029",
+    "metrics": {
+      "specialty": "Dermatology",
+      "providers": 6,
+      "monthly_appointments": 1900,
+      "no_show_rate": 0.23,
+      "portal_adoption_rate": 0.22,
+      "average_check_in_minutes": 20,
+      "weekly_phone_calls": 780,
+      "claim_denial_rate": 0.1,
+      "provider_utilization": 0.52
+    },
+    "expected_issues": [
+      "high_no_show",
+      "low_portal_use",
+      "long_check_in",
+      "front_desk_overload",
+      "billing_risk",
+      "low_provider_utilization"
+    ],
+    "expected_actions": [
+      "send_appointment_reminders",
+      "promote_portal_enrollment",
+      "enable_digital_intake",
+      "review_front_desk_workflow",
+      "review_claim_denials",
+      "rebalance_provider_schedule"
+    ]
+  },
+  {
+    "practice_id": "P030",
+    "metrics": {
+      "specialty": "Family Medicine",
+      "providers": 14,
+      "monthly_appointments": 4800,
+      "no_show_rate": 0.09,
+      "portal_adoption_rate": 0.9,
+      "average_check_in_minutes": 8,
+      "weekly_phone_calls": 340,
+      "claim_denial_rate": 0.01,
+      "provider_utilization": 0.83
+    },
+    "expected_issues": [],
+    "expected_actions": []
+  }
+]
