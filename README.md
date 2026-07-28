@@ -128,16 +128,14 @@ streamlit run app.py
 ## Synthetic dataset
 
 `test_cases.json` is a hand-built, synthetic set of 30 fictional practices (`P001`–`P030`)
-across 28 medical specialties (Dermatology, Family Medicine, Cardiology, Orthopedics,
-Psychiatry, Pediatrics, and others) — no real practice or patient data is used anywhere in
-this project. Each case pairs a plausible metrics profile with hand-labeled ground truth:
+across a range of medical specialties (Dermatology, Family Medicine, Cardiology,
+Orthopedics, Psychiatry, Pediatrics, and others) — no real practice or patient data is used
+anywhere in this project. Each case pairs a plausible metrics profile with hand-labeled
+ground truth:
 
 - `metrics` — the nine input variables described below, fed to the Diagnostic Agent.
-- `expected_issues` — the correct-answer key for the **Diagnostic Agent**: the issue
-  labels a correct application of the threshold rules produces for that practice,
-  including 9 "healthy practice" cases with an empty list.
-- `expected_actions` — the correct-answer key for the **Action Agent**: `expected_issues`
-  run through the fixed 1:1 issue→action mapping (see Agents above).
+- `expected_issues` — ground truth: the issues that actually apply to that practice.
+- `expected_actions` — ground truth: the actions that actually apply to that practice.
 
 ### The nine input variables
 
