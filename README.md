@@ -83,23 +83,6 @@ called with `temperature: 0` and Ollama's `format: "json"` mode, and any label o
 the allowed catalog is stripped and counted toward the unsupported-label rate rather than
 passed through.
 
-## Build order
-
-The project was built in dependency order — data and pinned deps first, then the shared
-agent module everything else imports, then the two things that consume it, then the
-reporting layer on top:
-
-```
-requirements.txt -> test_cases.json -> agents.py -> evaluate.py -> app.py
-                                                          |
-                                                          v
-                                          report_template.html -> generate_report.py -> report.html
-```
-
-`agents.py` was revisited after `evaluate.py`/`app.py` already existed, once model
-comparison (see Evaluation below) settled on switching the default from `llama3.1:latest`
-to `gemma2:9b`.
-
 ## Setup
 
 ```bash
@@ -287,17 +270,6 @@ a real deployment would mean addressing, roughly in order:
    whether accuracy holds outside the hand-built threshold cases.
 2. **Auth & multi-practice support** — add login and per-practice data isolation; today the
    app has no authentication and holds one practice's metrics in memory per session.
-3. **Persistence & history** — store metrics snapshots and agent output in a database so
-   trends (e.g. no-show rate over time) can be tracked instead of re-entered each session.
-4. **Model hosting decision** — decide between continuing to run Ollama on a managed VM/
-   container (keeps data fully local, no per-call cost) versus swapping in a hosted API
-   model for higher throughput/concurrency; `agents.py` isolates this behind `OLLAMA_HOST`/
-   `OLLAMA_MODEL`, so either path reuses the same prompt and label-filtering logic.
-5. **Automated ingestion** — replace the manual form in `app.py` with a scheduled pull from
-   the practice's actual metrics source (PM system API, nightly export, etc.).
-6. **Monitoring in production** — track the JSON-validity and unsupported-label rates
-   (already computed in `evaluate.py`) as live metrics post-deployment, with alerting if
-   either regresses, since both are leading indicators of model drift or prompt breakage.
-7. **Human-in-the-loop review** — given this still touches practice operations, add a
+3. **Human-in-the-loop review** — given this still touches practice operations, add a
    confirm/override step before any recommended action is treated as taken, rather than
    presenting agent output as a final decision.
